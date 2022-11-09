@@ -22,4 +22,9 @@ cd ProjectName
 npm start
 ```
 
+# Switch Expo Project to Native Project
+```text
+expo eject
+```
+
 Lecture by Nomad Coder
