@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { Alert, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { theme } from './color';
 import { Fontisto } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -26,7 +26,10 @@ export default function App() {
 
   const loadToDos = async () => {
     const s = await AsyncStorage.getItem(STORAGE_KEY);
-    setToDos(JSON.parse(s));
+
+    if (s) {
+      setToDos(JSON.parse(s));
+    }
   }
 
   const addTodo = async () => {
@@ -47,22 +50,31 @@ export default function App() {
   };
 
   const deleteToDo = async (key) => {
-    Alert.alert(
-      "Delete To Do?",
-      "Are you sure?", [
-      { text: "Cancel" },
-      {
-        text: "Sure",
-        style: "destructive",
-        onPress: async () => {
-          const newToDos = { ...toDos };
-          delete newToDos[key];
-          setToDos(newToDos);
-          await saveToDos(newToDos);
-        }
+    if (Platform.OS === 'web') {
+      const ok = confirm("Do you want to delete this To Do?");
+      if (ok) {
+        const newToDos = { ...toDos };
+        delete newToDos[key];
+        setToDos(newToDos);
+        await saveToDos(newToDos);
       }
-    ]);
-    return;
+    } else {
+      Alert.alert(
+        "Delete To Do?",
+        "Are you sure?", [
+        { text: "Cancel" },
+        {
+          text: "Sure",
+          style: "destructive",
+          onPress: async () => {
+            const newToDos = { ...toDos };
+            delete newToDos[key];
+            setToDos(newToDos);
+            await saveToDos(newToDos);
+          }
+        }
+      ]);
+    }
   };
 
   return (
@@ -113,7 +125,6 @@ const styles = StyleSheet.create({
   btnText: {
     fontSize: 38,
     fontWeight: "600",
-    color: "white"
   },
   input: {
     backgroundColor: "white",

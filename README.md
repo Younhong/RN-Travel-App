@@ -14,4 +14,12 @@ expo init project-name
 expo login
 ```
 
+# Create RN Project without expo
+```text
+npm i -g create-react-native-app
+create-react-native-app ProjectName
+cd ProjectName
+npm start
+```
+
 Lecture by Nomad Coder
