@@ -2,7 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { Alert, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { theme } from './color';
-import { Fontisto } from '@expo/vector-icons';
+import { Fontisto, FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const TODO_KEY = '@toDos';
@@ -22,34 +22,15 @@ export default function App() {
     setWorking(false);
 
     await saveTabs({ 'working': false });
-
-    const s = await AsyncStorage.getItem(TAB_KEY);
-    console.log(s);
   };
 
   const work = async () => {
     setWorking(true);
 
     await saveTabs({ 'working': true });
-
-    const s = await AsyncStorage.getItem(TAB_KEY);
-    console.log(s);
   };
 
   const onChangeText = (payload) => setText(payload);
-
-  const loadTabs = async () => {
-    const s = await AsyncStorage.getItem(TAB_KEY);
-
-    if (s) {
-      console.log(s);
-      setWorking(JSON.parse(s)['working']);
-    }
-  }
-
-  const saveTabs = async (toSave) => {
-    await AsyncStorage.setItem(TAB_KEY, JSON.stringify(toSave));
-  }
 
   const loadToDos = async () => {
     const s = await AsyncStorage.getItem(TODO_KEY);
@@ -64,7 +45,11 @@ export default function App() {
       return;
     }
 
-    const newToDos = { ...toDos, [Date.now()]: { text, working } };
+    const newToDos = {
+      ...toDos, [Date.now()]: {
+        text, working, 'isDone': false
+      }
+    };
 
     // const newToDos = Object.assign(
     //   {},
@@ -108,15 +93,44 @@ export default function App() {
     await AsyncStorage.setItem(TODO_KEY, JSON.stringify(toSave));
   }
 
+  const checkToDos = async (key) => {
+    const newToDos = { ...toDos };
+
+    newToDos[key].isDone = !newToDos[key].isDone;
+
+    setToDos(newToDos);
+    await saveToDos(newToDos);
+  }
+
+  const loadTabs = async () => {
+    const s = await AsyncStorage.getItem(TAB_KEY);
+
+    if (s) {
+      setWorking(JSON.parse(s)['working']);
+    }
+  }
+
+  const saveTabs = async (toSave) => {
+    await AsyncStorage.setItem(TAB_KEY, JSON.stringify(toSave));
+  }
+
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
       <View style={styles.header}>
         <TouchableOpacity onPress={work}>
-          <Text style={{ ...styles.btnText, color: working ? "white" : theme.grey }}>Work</Text>
+          <Text style={{
+            ...styles.btnText,
+            color: working ? "white" : theme.grey
+          }}>Work
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={travel}>
-          <Text style={{ ...styles.btnText, color: !working ? "white" : theme.grey }}>Travel</Text>
+          <Text style={{
+            ...styles.btnText,
+            color: !working ? "white" : theme.grey
+          }}>Travel
+          </Text>
         </TouchableOpacity>
       </View>
       <TextInput
@@ -131,10 +145,28 @@ export default function App() {
         (
           toDos[key].working === working ?
             <View style={styles.toDo} key={key}>
-              <Text style={styles.toDoText}>{toDos[key].text}</Text>
-              <TouchableOpacity onPress={() => deleteToDo(key)}>
-                <Fontisto name='trash' size={18} color="white" />
-              </TouchableOpacity>
+              <View style={{ flexDirection: 'row' }}>
+                <View style={{ paddingRight: 20 }}>
+                  <TouchableOpacity onPress={() => checkToDos(key)}>
+                    <FontAwesome name='check-square' size={18} color={
+                      toDos[key].isDone ? "white" : "black"} />
+                  </TouchableOpacity>
+                </View>
+                <Text style={{
+                  ...styles.toDoText, textDecorationLine:
+                    toDos[key].isDone ? 'line-through' : null
+                }}>{toDos[key].text}</Text>
+              </View>
+              <View style={{ flexDirection: 'row' }}>
+                <View style={{ paddingRight: 20 }}>
+                  <TouchableOpacity onPress={() => console.log('update')}>
+                    <FontAwesome name='pencil' size={18} color="white" />
+                  </TouchableOpacity>
+                </View>
+                <TouchableOpacity onPress={() => deleteToDo(key)}>
+                  <Fontisto name='trash' size={18} color="white" />
+                </TouchableOpacity>
+              </View>
             </View> : null)
         )}
       </ScrollView>
