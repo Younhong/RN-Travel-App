@@ -1,9 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { Alert, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import { theme } from './color';
-import { Fontisto, FontAwesome } from '@expo/vector-icons';
+import { Alert, Platform, ScrollView, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { styles } from './styles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { theme } from './color';
+import TextCard from './text-card';
 
 const TODO_KEY = '@toDos';
 const TAB_KEY = '@tabs';
@@ -144,72 +145,16 @@ export default function App() {
         Object.keys(toDos).map(key =>
         (
           toDos[key].working === working ?
-            <View style={styles.toDo} key={key}>
-              <View style={{ flexDirection: 'row' }}>
-                <View style={{ paddingRight: 20 }}>
-                  <TouchableOpacity onPress={() => checkToDos(key)}>
-                    <FontAwesome name='check-square' size={18} color={
-                      toDos[key].isDone ? "white" : "black"} />
-                  </TouchableOpacity>
-                </View>
-                <Text style={{
-                  ...styles.toDoText, textDecorationLine:
-                    toDos[key].isDone ? 'line-through' : null
-                }}>{toDos[key].text}</Text>
-              </View>
-              <View style={{ flexDirection: 'row' }}>
-                <View style={{ paddingRight: 20 }}>
-                  <TouchableOpacity onPress={() => console.log('update')}>
-                    <FontAwesome name='pencil' size={18} color="white" />
-                  </TouchableOpacity>
-                </View>
-                <TouchableOpacity onPress={() => deleteToDo(key)}>
-                  <Fontisto name='trash' size={18} color="white" />
-                </TouchableOpacity>
-              </View>
-            </View> : null)
+            <TextCard
+              key={key}
+              textKey={key}
+              toDos={toDos}
+              checkToDos={checkToDos}
+              deleteToDo={deleteToDo}>
+            </TextCard>
+            : null)
         )}
       </ScrollView>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.bg,
-    paddingHorizontal: 20,
-  },
-  header: {
-    justifyContent: "space-between",
-    flexDirection: "row",
-    marginTop: 100
-  },
-  btnText: {
-    fontSize: 38,
-    fontWeight: "600",
-  },
-  input: {
-    backgroundColor: "white",
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderRadius: 30,
-    marginVertical: 20,
-    fontSize: 18
-  },
-  toDo: {
-    backgroundColor: theme.toDoBg,
-    marginBottom: 10,
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-    borderRadius: 15,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between"
-  },
-  toDoText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "500"
-  }
-});
