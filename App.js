@@ -5,7 +5,8 @@ import { theme } from './color';
 import { Fontisto } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const STORAGE_KEY = '@toDos';
+const TODO_KEY = '@toDos';
+const TAB_KEY = '@tabs';
 
 export default function App() {
   const [working, setWorking] = useState(true);
@@ -14,18 +15,44 @@ export default function App() {
 
   useEffect(() => {
     loadToDos();
+    loadTabs();
   }, []);
 
-  const travel = () => setWorking(false);
-  const work = () => setWorking(true);
+  const travel = async () => {
+    setWorking(false);
+
+    await saveTabs({ 'working': false });
+
+    const s = await AsyncStorage.getItem(TAB_KEY);
+    console.log(s);
+  };
+
+  const work = async () => {
+    setWorking(true);
+
+    await saveTabs({ 'working': true });
+
+    const s = await AsyncStorage.getItem(TAB_KEY);
+    console.log(s);
+  };
+
   const onChangeText = (payload) => setText(payload);
 
-  const saveToDos = async (toSave) => {
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+  const loadTabs = async () => {
+    const s = await AsyncStorage.getItem(TAB_KEY);
+
+    if (s) {
+      console.log(s);
+      setWorking(JSON.parse(s)['working']);
+    }
+  }
+
+  const saveTabs = async (toSave) => {
+    await AsyncStorage.setItem(TAB_KEY, JSON.stringify(toSave));
   }
 
   const loadToDos = async () => {
-    const s = await AsyncStorage.getItem(STORAGE_KEY);
+    const s = await AsyncStorage.getItem(TODO_KEY);
 
     if (s) {
       setToDos(JSON.parse(s));
@@ -37,7 +64,7 @@ export default function App() {
       return;
     }
 
-    const newToDos = { ...toDos, [Date.now()]: { text, working } }
+    const newToDos = { ...toDos, [Date.now()]: { text, working } };
 
     // const newToDos = Object.assign(
     //   {},
@@ -76,6 +103,10 @@ export default function App() {
       ]);
     }
   };
+
+  const saveToDos = async (toSave) => {
+    await AsyncStorage.setItem(TODO_KEY, JSON.stringify(toSave));
+  }
 
   return (
     <View style={styles.container}>
