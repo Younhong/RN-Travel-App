@@ -94,6 +94,18 @@ export default function App() {
     await AsyncStorage.setItem(TODO_KEY, JSON.stringify(toSave));
   }
 
+  const editToDos = async (key, text) => {
+    const newToDos = { ...toDos };
+
+    console.log(newToDos);
+
+    newToDos[key].isDone = !newToDos[key].isDone;
+    newToDos[key].text = text;
+
+    setToDos(newToDos);
+    await saveToDos(newToDos);
+  }
+
   const checkToDos = async (key) => {
     const newToDos = { ...toDos };
 
@@ -140,7 +152,7 @@ export default function App() {
         returnKeyType="done"
         value={text}
         placeholder={working ? "Add a To Do" : "Where do you want to go?"}
-        style={styles.input} />
+        style={styles.addInput} />
       <ScrollView>{
         Object.keys(toDos).map(key =>
         (
@@ -149,6 +161,7 @@ export default function App() {
               key={key}
               textKey={key}
               toDos={toDos}
+              editToDos={editToDos}
               checkToDos={checkToDos}
               deleteToDo={deleteToDo}>
             </TextCard>
