@@ -18,8 +18,6 @@ expo login
 ```text
 npm i -g create-react-native-app
 create-react-native-app ProjectName
-cd ProjectName
-npm start
 ```
 
 # Switch Expo Project to Native Project
